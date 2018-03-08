@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 log = np.reshape(np.load('./log.npy'),(-1))[0]
 keys = [k for k in log]
 l = len(log[keys[0]])
-epochs = range(l)
+epochs = list(range(l))
 offset = 0
 
 fig = plt.figure()

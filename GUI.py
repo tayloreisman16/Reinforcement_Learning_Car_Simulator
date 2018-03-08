@@ -1,4 +1,4 @@
-import Tkinter as tk
+import tkinter as tk
 import numpy as np
 import math
 import time

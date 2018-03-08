@@ -122,7 +122,7 @@ class QLearning_NN():
                 self.avg_score = sum(self.log['final_score'][self.epoch-5:self.epoch])/5
                 np.save('./log',self.log)
                 self.model.save_weights(self.weights_save_dir+'rlcar_epoch_'+str(self.epoch).zfill(5))
-                print 'Epoch ',self.epoch,'Epsilon=',self.parameters['epsilon'],'Run=',agent.state,'Avg score=',self.avg_score,'Avg loss=',self.avg_loss
+                print('Epoch ',self.epoch,'Epsilon=',self.parameters['epsilon'],'Run=',agent.state,'Avg score=',self.avg_score,'Avg loss=',self.avg_loss)
                 debug_data = '[Training]\n'+'Epoch '+str(self.epoch)+'\nEpsilon='+str(self.parameters['epsilon'])+'\nRun='+str(agent.state)+'\nAvg score='+'{:.2f}'.format(self.avg_score)+'\nAvg loss='+str(self.avg_loss)
             self.avg_loss,self.itr = 0,0
             terminal_state = agent.get_state()

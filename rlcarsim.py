@@ -90,7 +90,7 @@ def user_control(track_select='SS'):
     while(True):
         d = {'w':[0.5,0.0],'s':[-0.3,0.0],'a':[0.1,0.6],'d':[0.1,-0.6]}
         try:
-            [v,s] = d[raw_input()]
+            [v,s] = d[input()]
         except:
             [v,s] = [0,0]
         for agent in car_objects:
@@ -148,11 +148,11 @@ def reinfrocement_neural_network_control(load_weights=None,run_only=False,track_
 
     def check_run_button(current_state):
         if gui.get_run_select()==gui.runs[0] and current_state==True:
-            print '\n\n\nLearning\n'
+            print('\n\n\nLearning\n')
             initialize(run_state=False)
             return False
         if gui.get_run_select()==gui.runs[1] and run==False:
-            print '\n\n\nRun only\n'
+            print('\n\n\nRun only\n')
             initialize(run_state=True)
             return True
         return None
@@ -165,7 +165,7 @@ def reinfrocement_neural_network_control(load_weights=None,run_only=False,track_
             for i,car in enumerate(car_objects):
                 terminal = rl.run_step(car,env,dt)
                 if terminal is not None:
-                    print 'Car',i,':',terminal
+                    print('Car',i,':',terminal)
                     if i==0:
                         if load_weights=='all' and weight_names_index<len(weight_names):
                             rl.load_weights(weight_names[weight_names_index])
