@@ -3,11 +3,12 @@ import numpy as np
 import math
 import time
 
+
 class GUI(object):
-    def __init__(self,environment_details,car_details,trace=False):
-        self.w,self.h = 1280,720
-        self.graphs = ['Average loss','Final score','Cross score']
-        self.runs = ['Learn','Run only']
+    def __init__(self, environment_details, car_details, trace=False):
+        self.w, self.h = 1280, 720
+        self.graphs = ['Average loss', 'Final score', 'Cross score']
+        self.runs = ['Learn', 'Run only']
         self.construct_window()
         self.title_label('Reinforcement Learning Car Simulation')
         self.env = environment_details
@@ -17,46 +18,50 @@ class GUI(object):
         self.init_env()
         self.init_car()
         self.init_graph()
-        self.approximator = lambda x: str(round(x, -int(math.floor(math.log10(abs(x))))+3)) if x!=0 else '0'
+        self.approximator = lambda x: str(round(x, -int(math.floor(math.log10(abs(x))))+3)) if x != 0 else '0'
         self.refresh()
 
     def construct_window(self):
         # Level 1: Main window and frame
         self.window = tk.Tk()
-        self.window.resizable(0,0)
-        self.window_frame = tk.Frame(self.window,padx=10,pady=10)
+        self.window.resizable(0, 0)
+        self.window_frame = tk.Frame(self.window, padx=10, pady=10)
         self.window_frame.pack()
         # Level 2: Segments for display and options
         proportion = 0.7
         self.display = tk.Canvas(self.window_frame, width=int(proportion*self.w), height=self.h)
         self.display.pack(side=tk.LEFT)
         self.display.config(background='gray90')
-        self.options = tk.Frame(self.window_frame,padx=25,pady=25)
-        self.options.pack(side=tk.RIGHT,fill=tk.Y)
+        self.options = tk.Frame(self.window_frame, padx=25, pady=25)
+        self.options.pack(side=tk.RIGHT, fill=tk.Y)
         self.options.config(background='white smoke')
         # Level 3: Graph and debug info inside options. Display has no other children
-        self.graph = tk.Canvas(self.options,background='white',width=int((1-proportion)*self.w), height=int(self.h/2))
+        self.graph = tk.Canvas(self.options, background='white', width=int((1-proportion)*self.w), height=int(self.h/2))
         self.graph.pack(side=tk.BOTTOM)
         self.run_select = tk.StringVar()
         self.run_select_button_holder = tk.Frame(self.options)
-        self.run_select_button_holder.pack(side=tk.TOP,anchor=tk.CENTER)
+        self.run_select_button_holder.pack(side=tk.TOP, anchor=tk.CENTER)
         self.debug_info = tk.StringVar()
-        tk.Label(self.options,textvariable=self.debug_info,justify=tk.LEFT,background='white smoke',pady=10,font=('System')).pack(side=tk.TOP)
+        tk.Label(self.options,textvariable=self.debug_info, justify=tk.LEFT, background='white smoke', pady=10,
+                 font=('System')).pack(side=tk.TOP)
         self.graph_select = tk.StringVar()
         self.graph_select.set(self.graphs[0])
         self.graph_select_button_holder = tk.Frame(self.options)
-        self.graph_select_button_holder.pack(side=tk.BOTTOM,anchor=tk.CENTER)
+        self.graph_select_button_holder.pack(side=tk.BOTTOM, anchor=tk.CENTER)
         # Level 4: Configure buttons
         for r in self.runs:
-            tk.Radiobutton(self.run_select_button_holder, text=r, variable=self.run_select, value=r, indicatoron=0,font=('System')).pack(side=tk.LEFT,anchor=tk.CENTER)
+            tk.Radiobutton(self.run_select_button_holder, text=r, variable=self.run_select, value=r, indicatoron=0,
+                           font='System').pack(side=tk.LEFT, anchor=tk.CENTER)
         for g in self.graphs:
-            tk.Radiobutton(self.graph_select_button_holder, text=g, variable=self.graph_select, value=g, indicatoron=0,font=('System')).pack(side=tk.LEFT,anchor=tk.CENTER)
+            tk.Radiobutton(self.graph_select_button_holder, text=g, variable=self.graph_select, value=g, indicatoron=0,
+                           font='System').pack(side=tk.LEFT, anchor=tk.CENTER)
 
-    def set_display_range(self,xmin,xmax,ymin,ymax):
-        x_range,y_range = xmax-xmin+2,ymax-ymin+2
-        self.display_w, self.display_h = int(self.display.config()['width'][-1]),int(self.display.config()['height'][-1])
+    def set_display_range(self, xmin, xmax, ymin, ymax):
+        x_range, y_range = xmax - xmin + 2, ymax - ymin + 2
+        self.display_w, self.display_h = int(self.display.config()['width'][-1]), int(
+            self.display.config()['height'][-1])
         self.scale_factor = min(self.display_w/x_range, self.display_h/y_range)
-        self.center_offset = (self.scale_factor*2,self.scale_factor*2)
+        self.center_offset = (self.scale_factor*2, self.scale_factor*2)
 
     def scale_and_offset_center(self,list_of_points):
         tr_pts = []
@@ -72,48 +77,49 @@ class GUI(object):
         return R
 
     def init_env(self):
-        self.set_display_range(min([a for (a,b) in self.env['points']]), max([a for (a,b) in self.env['points']]), min([b for (a,b) in self.env['points']]), max([b for (a,b) in self.env['points']]))
+        self.set_display_range(min([a for (a, b) in self.env['points']]), max([a for (a, b) in self.env['points']]),
+                               min([b for (a, b) in self.env['points']]), max([b for (a, b) in self.env['points']]))
         track_coords = self.scale_and_offset_center(self.env['points'])
-        self.track_id = self.display.create_polygon(track_coords,fill='white',outline='black')
+        self.track_id = self.display.create_polygon(track_coords, fill='white', outline='black')
 
     def init_car(self):
         for i in range(len(self.cars)):
             # Trace
-            self.trace_mod(i,self.cars[i]['state'][0:2],init=True)
+            self.trace_mod(i, self.cars[i]['state'][0:2], init=True)
         for i in range(len(self.cars)):
             # Car
             R = self.rotation_matrix(self.cars[i]['state'][2])
             w = self.cars[i]['W']
             l = self.cars[i]['L']
-            points = np.array([ [0,-w], [l,-w], [l,w], [0,w] ]).T
-            points = np.dot(R,points)
-            points[0,:] += self.cars[i]['state'][0]
-            points[1,:] += self.cars[i]['state'][1]
-            self.cars[i]['gui_body_id'] = self.display.create_polygon(self.scale_and_offset_center(points.T),fill='blue',outline='black')
+            points = np.array([[0, -w], [l, -w], [l, w], [0, w]]).T
+            points = np.dot(R, points)
+            points[0, :] += self.cars[i]['state'][0]
+            points[1, :] += self.cars[i]['state'][1]
+            self.cars[i]['gui_body_id'] = self.display.create_polygon(self.scale_and_offset_center(points.T), fill='blue',outline='black')
             # Sensor
             for j in range(len(self.cars[i]['sensors'])):
                 sa,sr = self.cars[i]['sensors'][j]['angle'],self.cars[i]['sensors'][j]['range']
                 R = self.rotation_matrix(self.cars[i]['state'][2]+sa)
-                points = np.array([ [0,0],[sr,0] ]).T
-                points = np.dot(R,points)
-                points[0,:] += self.cars[i]['state'][0]
-                points[1,:] += self.cars[i]['state'][1]
+                points = np.array([[0, 0], [sr, 0]]).T
+                points = np.dot(R, points)
+                points[0, :] += self.cars[i]['state'][0]
+                points[1, :] += self.cars[i]['state'][1]
                 self.cars[i]['sensors'][j]['gui_sensor_id'] = self.display.create_line(self.scale_and_offset_center(points.T),fill='red')
 
     def init_graph(self):
-        self.graph_w,self.graph_h = int(self.graph.config()['width'][-1]),int(self.graph.config()['height'][-1])
-        self.plots = [self.graph.create_line([(0,0),(1,1)],width=2.0),
-                        self.graph.create_text(0,self.graph_h,anchor=tk.SW,text=str((0,0))),
-                        self.graph.create_text(0,0,anchor=tk.NW,text=str(1)),
-                        self.graph.create_text(self.graph_w,self.graph_h,anchor=tk.SE,text=str(1))]
+        self.graph_w, self.graph_h = int(self.graph.config()['width'][-1]), int(self.graph.config()['height'][-1])
+        self.plots = [self.graph.create_line([(0, 0), (1, 1)], width=2.0),
+                        self.graph.create_text(0, self.graph_h,anchor=tk.SW, text=str((0, 0))),
+                        self.graph.create_text(0, 0, anchor=tk.NW, text=str(1)),
+                        self.graph.create_text(self.graph_w, self.graph_h, anchor=tk.SE, text=str(1))]
 
-    def trace_mod(self,car_id,pt,init=False,force_end_line=False):
-        if init==True:
+    def trace_mod(self, car_id, pt, init=False, force_end_line=False):
+        if init is True:
             self.cars[car_id]['trace_history'] = [-1]*self.trace_history_limit
             self.cars[car_id]['trace_history_index'] = 0
             self.cars[car_id]['trace_history_buffer'] = []
         self.cars[car_id]['trace_history_buffer'].append(pt)
-        if len(self.cars[car_id]['trace_history_buffer'])>100 or force_end_line==True:
+        if len(self.cars[car_id]['trace_history_buffer']) > 100 or force_end_line is True:
             self.display.delete(self.cars[car_id]['trace_history'][self.cars[car_id]['trace_history_index']])
             if len(self.cars[car_id]['trace_history_buffer'])>2:
                 self.cars[car_id]['trace_history'][self.cars[car_id]['trace_history_index']] = self.display.create_line(self.scale_and_offset_center(self.cars[car_id]['trace_history_buffer']),fill='gray65',width=1)
