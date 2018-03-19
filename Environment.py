@@ -1,28 +1,30 @@
 import numpy as np
 import math
 
-class Point():
-    def __init__(self,pt):
+
+class Point:
+    def __init__(self, pt):
         self.x = float(pt[0])
         self.y = float(pt[1])
 
-    def __add__(self,point):
+    def __add__(self, point):
         return Point((self.x+point.x,self.y+point.y))
 
-    def __sub__(self,point):
-        return Point((self.x-point.x,self.y-point.y))
+    def __sub__(self, point):
+        return Point((self.x-point.x, self.y-point.y))
 
-    def __mul__(self,value):
-        return Point((value*self.x,value*self.y))
+    def __mul__(self, value):
+        return Point((value*self.x, value*self.y))
 
-    def distance(self,point):
+    def distance(self, point):
         return math.sqrt((self.x-point.x)**2 + (self.y-point.y)**2)
 
     def __str__(self):
         return 'P('+'{0:.2f}'.format(self.x)+','+'{0:.2f}'.format(self.y)+')'
 
-class Vector():
-    def __init__(self,p1,p2):
+
+class Vector:
+    def __init__(self, p1, p2):
         self.point = p1
         self.end_point = p2
         self.vector = p2-p1
@@ -31,61 +33,62 @@ class Vector():
         return math.sqrt(self.vector.x**2 + self.vector.y**2)
 
     def angle(self):
-        if self.vector.x==0:
+        if self.vector.x == 0:
             return 0.0
         return math.atan(self.vector.y/self.vector.x)
 
-    def __add__(self,vec):
-        return Vector(self.point,self.vector+vec.vector)
+    def __add__(self, vec):
+        return Vector(self.point, self.vector+vec.vector)
 
-    def __sub__(self,vec):
-        return Vector(self.point,self.vector-vec.vector)
+    def __sub__(self, vec):
+        return Vector(self.point, self.vector-vec.vector)
 
-    def __mul__(self,value):
-        return Vector(self.point,self.point+(self.vector*value))
+    def __mul__(self, value):
+        return Vector(self.point, self.point+(self.vector*value))
 
-    def dot(self,vec):
-        return (self.vector.x*vec.vector.x + self.vector.y*vec.vector.y)
+    def dot(self, vec):
+        return self.vector.x*vec.vector.x + self.vector.y*vec.vector.y
 
-    def cross(self,vec):
-        return (self.vector.x*vec.vector.y - self.vector.y*vec.vector.x)
+    def cross(self, vec):
+        return self.vector.x*vec.vector.y - self.vector.y*vec.vector.x
 
     def perpendicular(self):
-        return Vector(self.point,self.point+Point((-self.vector.y,self.vector.x)))
+        return Vector(self.point, self.point+Point((-self.vector.y, self.vector.x)))
 
     def unit_vector(self):
-        return Vector(self.point,self.point+(self.vector*(1.0/self.length())))
+        return Vector(self.point, self.point+(self.vector*(1.0/self.length())))
 
-    def in_segment(self,point):
-        if self.vector.x != 0: # Not Vertical
-            if ((self.point.x <= point.x) and (point.x <= self.point.x+self.vector.x)):
+    def in_segment(self, point):
+        if self.vector.x != 0:  # Not Vertical
+            if (self.point.x <= point.x) and (point.x <= self.point.x+self.vector.x):
                 return True
-            if ((self.point.x >= point.x) and (point.x >= self.point.x+self.vector.x)):
+            if (self.point.x >= point.x) and (point.x >= self.point.x+self.vector.x):
                 return True
         else:
-            if ((self.point.y <= point.y) and (point.y <= self.point.y+self.vector.y)):
+            if (self.point.y <= point.y) and (point.y <= self.point.y+self.vector.y):
                 return True
-            if ((self.point.y >= point.y) and (point.y >= self.point.y+self.vector.y)):
+            if (self.point.y >= point.y) and (point.y >= self.point.y+self.vector.y):
                 return True
         return False
 
-    def intersection(self,vec):
+    def intersection(self, vec):
         # http://geomalgorithms.com/a05-_intersect-1.html#intersect2D_2Segments()
         # https://stackoverflow.com/questions/3252194/numpy-and-line-intersections
-        dp = Vector(vec.point,self.point)
+        dp = Vector(vec.point, self.point)
         denom = self.cross(vec)
-        if denom == 0: # Parallel segments
+        if denom == 0:  # Parallel segments
             return None
         X_point = (vec*(self.cross(dp)/denom)).vector + vec.point
-        if (self.in_segment(X_point)==True and vec.in_segment(X_point)==True):
+        if self.in_segment(X_point) is True and vec.in_segment(X_point) is True:
             return X_point
         else:
             return None
 
-    def perpendicular_base_length(self,point):
+    def perpendicular_base_length(self, point):
         l_2 = self.vector.x**2 + self.vector.y**2
         l = math.sqrt(l_2)
-        d = (l_2 + (self.point.x-point.x)**2 + (self.point.y-point.y)**2 - (self.end_point.x-point.x)**2 - (self.end_point.y-point.y)**2 )/(2*l)
+        d = (l_2 + (self.point.x-point.x)**2 + (self.point.y-point.y)**2 - (self.end_point.x-point.x)**2 -
+             (self.end_point.y-point.y)**2 )/(2*l)
         return d
 
     def draw_points(self):
@@ -159,8 +162,9 @@ class Car():
         self.score = 0
         self.prev_score = 0
 
-class Environment():
-    def __init__(self,environment_details,max_steps):
+
+class Environment:
+    def __init__(self, environment_details, max_steps):
         self.max_steps = max_steps
         self.track_width = environment_details['track_width']
         self.start_angle = environment_details['start_angle']
@@ -171,7 +175,7 @@ class Environment():
         self.border_segments = []
         points = environment_details['points'][:]
         points.append(points[0])
-        for i in range(1,len(points)):
+        for i in range(1, len(points)):
             self.border_segments.append(Vector(Point(points[i-1]),Point(points[i])))
         self.polygon_segments = []
         points_L = [Point(i) for i in environment_details['points_L']]
@@ -256,20 +260,22 @@ class Environment():
     def set_max_steps(self,value):
         self.max_steps = value
 
-def track_generator(track_dict,track_select):
+
+def track_generator(track_dict, track_select):
+
     track_dict['path'] = track_dict[track_select][:]
     path = track_dict['path']
     d = track_dict['track_width']
     start_angle = 0.0
     side_L,side_R = [],[]
     for i in range(len(path)):
-        p1,p2,p3 = None,Point(path[i]),None
-        if i==0:
+        p1, p2, p3 = None, Point(path[i]), None
+        if i == 0:
             p3 = Point(path[i+1])
-            u = Vector(p3,p2).unit_vector()
+            u = Vector(p3, p2).unit_vector()
             p1 = u.vector*d + p2
-            start_angle = Vector(p2,p3).angle()
-        elif i==(len(path)-1):
+            start_angle = Vector(p2, p3).angle()
+        elif i == (len(path)-1):
             p1 = Point(path[i-1])
             u = Vector(p1,p2).unit_vector()
             p3 = u.vector*d + p2

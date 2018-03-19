@@ -52,13 +52,13 @@ rl_parameters = {
 
     'actions': [(0.5, 0), (0.5, 0.6), (0.5, -0.6), (1.5, 0), (1.5, 0.1), (1.5, -0.1)],
 
-    'epsilon': 0.0,  # 0.5 # Initial epsilon value to start traingin with
+    'epsilon': 0.0,  # 0.5 # Initial epsilon value to start training with
     'max_epsilon': 0.9,  # 0.93 # Maximum epsilon value to be set as the agent learns
     'epsilon_step': 0.0015,  # 0.0004 # Increment to epsilon after every epoch(termination of a run)
     'gamma': 0.99,  # Discount factor
-    'lr_alpha': 0.001,  # Learning rate for back proportion update of neural netwrok
+    'lr_alpha': 0.001,  # Learning rate for back proportion update of neural network
     'leak_alpha': 0.3,  # Used by the LeakyReLU activation function after each layer in the NN
-    'max_steps': 1000,  # Timout for the cars to comlete the track, to avoid them going round and round in circles
+    'max_steps': 1000,  # Timeout for the cars to complete the track, to avoid them going round and round in circles
     'collision_reward': -1,  # Reward offered if car collides
     'timeup_reward': -1,  # Reward offered if time runs out
     'destination_reward': 1,  # Reward offered if car completes the track
@@ -150,7 +150,7 @@ def reinforcement_neural_network_control(load_weights=None, run_only=False, trac
     env = Environment.Environment(track, rl_parameters['max_steps'])
     gui = GUI.GUI(track, cars, trace=True)
     car_objects = [Environment.Car(c) for c in cars]
-    rl = RL.QLearning_NN(rl_prams, weights_save_dir=weights_save_dir)
+    rl = RL.QLearningNN(rl_prams, weights_save_dir=weights_save_dir)
     rl.generate_nn()
     if load_weights is not None:
         if load_weights == 'all':
@@ -197,7 +197,7 @@ def reinforcement_neural_network_control(load_weights=None, run_only=False, trac
             run = new_run_state
         if run is True:
             for i, car in enumerate(car_objects):
-                terminal = rl.run_step(car, env, dt)
+                terminal = rl.run_step(car, dt)
                 if terminal is not None:
                     print('Car', i, ':', terminal)
                     if i == 0:
